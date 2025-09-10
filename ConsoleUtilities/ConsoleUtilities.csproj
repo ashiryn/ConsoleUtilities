@@ -7,6 +7,11 @@
         <Nullable>enable</Nullable>
         <Description>Collection of C# utilities that can be used with console applications.</Description>
         <RepositoryUrl>https://github.com/ashiryn/ConsoleUtilities.git</RepositoryUrl>
+        <AssemblyName>FluffyVoid.ConsoleUtilities</AssemblyName>
+        <RootNamespace>FluffyVoid.ConsoleUtilities</RootNamespace>
+        <PackageId>FluffyVoid.ConsoleUtilities</PackageId>
+        <Title>ConsoleUtilities</Title>
+        <Authors>FluffyVoid</Authors>
     </PropertyGroup>
 
     <ItemGroup>
