@@ -30,7 +30,7 @@ jobs:
     - name: Add GitHub NuGet Source
       id: add-nuget-source
       run: |
-        dotnet nuget update source 'FluffyVoid - Github' -p ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text
+        dotnet nuget update source 'FluffyVoid - Github' -u Build -p ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text
         continue-on-error: true
     
     - name: Restore dependencies
