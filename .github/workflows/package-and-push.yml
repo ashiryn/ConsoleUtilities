@@ -17,7 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       packages: write
-      packages: read
 
     name: Update NuGet package
     steps:
@@ -29,6 +28,11 @@ jobs:
       with:
         dotnet-version: 9.0.x      
         
+    - name: Add GitHub NuGet Source
+      id: add-nuget-source
+      run: |
+        dotnet nuget update source 'FluffyVoid - Github' -u Build -p ${{ env.NUGET_AUTH_TOKEN }} --store-password-in-clear-text
+    
     - name: Build and Package project
       run: |
         cd ${{ env.PROJECT_NAME }}
