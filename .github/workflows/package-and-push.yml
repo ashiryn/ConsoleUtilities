@@ -17,7 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       packages: write
-      packages: read
 
     name: Update NuGet package
     steps:
