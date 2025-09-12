@@ -12,10 +12,19 @@
         <PackageId>FluffyVoid.ConsoleUtilities</PackageId>
         <Title>ConsoleUtilities</Title>
         <Authors>FluffyVoid</Authors>
+        <Version>1.0.1</Version>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DocumentationFile>bin\Debug\ConsoleUtilities.xml</DocumentationFile>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DocumentationFile>bin\Release\ConsoleUtilities.xml</DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="FluffyVoid.Text" Version="1.0.0" />
+      <PackageReference Include="FluffyVoid.Text" Version="1.0.1" />
     </ItemGroup>
 
 </Project>
