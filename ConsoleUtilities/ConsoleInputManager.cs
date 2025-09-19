@@ -47,7 +47,7 @@ namespace FluffyVoid.ConsoleUtilities
         /// <summary>
         /// Lock object for multithreaded console access
         /// </summary>
-        private readonly Lock _consoleLock = new Lock();
+        private readonly object _consoleLock = new object();
 
         /// <summary>
         /// Erases the last line of the console window to emulate a bottom-to-top console display
