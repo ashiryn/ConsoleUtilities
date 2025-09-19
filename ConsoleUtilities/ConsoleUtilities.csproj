@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>netstandard2.1</TargetFramework>
         <LangVersion>latestmajor</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
@@ -12,19 +12,26 @@
         <PackageId>FluffyVoid.ConsoleUtilities</PackageId>
         <Title>ConsoleUtilities</Title>
         <Authors>FluffyVoid</Authors>
-        <Version>1.0.1</Version>
+        <Version>1.0.2</Version>
+		<AssemblyVersion>1.0.2</AssemblyVersion>
+        <FileVersion>1.0.2</FileVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DocumentationFile>bin\Debug\ConsoleUtilities.xml</DocumentationFile>
+      <DocumentationFile>bin/Debug/FluffyVoid.ConsoleUtilities.xml</DocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DocumentationFile>bin\Release\ConsoleUtilities.xml</DocumentationFile>
+      <DocumentationFile>bin/Release/FluffyVoid.ConsoleUtilities.xml</DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="FluffyVoid.Text" Version="1.0.1" />
+      <PackageReference Include="FluffyVoid.Text" Version="1.0.2" />
     </ItemGroup>
-
+	<ItemGroup>
+        <None Include="bin/$(Configuration)/FluffyVoid.ConsoleUtilities.xml" Pack="true">
+            <PackageCopyToOutput>true</PackageCopyToOutput>
+            <PackageFlatten>true</PackageFlatten>
+        </None>
+	</ItemGroup>
 </Project>
