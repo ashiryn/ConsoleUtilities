@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleUtilities", "ConsoleUtilities\ConsoleUtilities.csproj", "{4C1ACA2D-F752-4C8E-AD7E-A71B85626780}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluffyVoid.ConsoleUtilities", "FluffyVoid.ConsoleUtilities\FluffyVoid.ConsoleUtilities.csproj", "{4C1ACA2D-F752-4C8E-AD7E-A71B85626780}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

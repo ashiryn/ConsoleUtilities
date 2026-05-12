@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FluffyVoid.ConsoleUtilities
+﻿namespace FluffyVoid.ConsoleUtilities
 {
     /// <summary>
     ///     Event arg class for key pressed events
