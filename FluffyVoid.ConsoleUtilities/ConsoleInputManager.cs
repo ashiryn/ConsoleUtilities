@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using FluffyVoid.Text;
 using FluffyVoid.Text.AutoCompletion;
 
@@ -11,6 +10,34 @@ namespace FluffyVoid.ConsoleUtilities
     public class ConsoleInputManager
     {
         /// <summary>
+        ///     Auto complete detector to use when retrieving auto complete suggestions
+        /// </summary>
+        private readonly AutoComplete _autoComplete;
+        /// <summary>
+        ///     The cached input that has been input into the console window, allowing for
+        ///     the display of auto complete suggestions
+        ///     without losing a reference to what the user has input
+        /// </summary>
+        private string _cachedInput;
+        /// <summary>
+        ///     Lock object for multithreaded console access
+        /// </summary>
+        private readonly object _consoleLock = new object();
+        /// <summary>
+        ///     History manager that tracks the input text that a user has input, allowing
+        ///     for up/down re-entry of text
+        /// </summary>
+        private readonly TextHistory _history;
+        /// <summary>
+        ///     The current text that has been input into the console window
+        /// </summary>
+        private readonly StringBuilder _inputBuilder;
+        /// <summary>
+        ///     Whether the console window should refresh what input is currently being
+        ///     displayed to the console window
+        /// </summary>
+        private bool _shouldRefresh;
+        /// <summary>
         ///     Event used to indicate that a function key has been pressed
         /// </summary>
         public event Action<object, InputEventArgs>? FunctionKeyPressed;
@@ -19,39 +46,32 @@ namespace FluffyVoid.ConsoleUtilities
         /// </summary>
         public event Action<object, InputCompleteEventArgs>? InputCompleted;
         /// <summary>
-        ///     Event used to indicate that an alpha-numeric key has been pressed
+        ///     Event used to indicate that an alphanumeric key has been pressed
         /// </summary>
         public event Action<object, InputEventArgs>? KeyPressed;
+        /// <summary>
+        ///     Constructor used to initialize the manager
+        /// </summary>
+        /// <param name="autoCompleteDetector">
+        ///     Auto complete detector to use when
+        ///     retrieving auto complete suggestions
+        /// </param>
+        /// <param name="maxHistory">The maximum number of input texts to remember</param>
+        public ConsoleInputManager(IAutoCompleteDetector autoCompleteDetector,
+                                   int                   maxHistory)
+        {
+            _inputBuilder  = new StringBuilder();
+            _history       = new TextHistory(maxHistory);
+            _autoComplete  = new AutoComplete(autoCompleteDetector);
+            _shouldRefresh = false;
+            _cachedInput   = string.Empty;
+        }
 
         /// <summary>
-        ///     Auto complete detector to use when retrieving auto complete suggestions
+        ///     Erases the last line of the console window to emulate a bottom-to-top
+        ///     console display
         /// </summary>
-        private readonly AutoComplete _autoComplete;
-        /// <summary>
-        ///     History manager that tracks the input text that a user has input, allowing for up/down re-entry of text
-        /// </summary>
-        private readonly TextHistory _history;
-        /// <summary>
-        ///     The current text that has been input into the console window
-        /// </summary>
-        private readonly StringBuilder _inputBuilder;
-        /// <summary>
-        ///     The cached input that has been input into the console window, allowing for the display of auto complete suggestions
-        ///     without losing a reference to what the user has input
-        /// </summary>
-        private string _cachedInput;
-        /// <summary>
-        ///     Whether the console window should refresh what input is currently being displayed to the console window
-        /// </summary>
-        private bool _shouldRefresh;
-        /// <summary>
-        /// Lock object for multithreaded console access
-        /// </summary>
-        private readonly object _consoleLock = new object();
-
-        /// <summary>
-        /// Erases the last line of the console window to emulate a bottom-to-top console display
-        /// </summary>
+        // ReSharper disable once MemberCanBePrivate.Global
         public void EraseLastLine()
         {
             lock (_consoleLock)
@@ -61,42 +81,35 @@ namespace FluffyVoid.ConsoleUtilities
                 Console.SetCursorPosition(0, Console.BufferHeight - 1);
             }
         }
-        /// <summary>
-        ///     Constructor used to initialize the manager
-        /// </summary>
-        /// <param name="autoCompleteDetector">Auto complete detector to use when retrieving auto complete suggestions</param>
-        /// <param name="maxHistory">The maximum number of input texts to remember</param>
-        public ConsoleInputManager(IAutoCompleteDetector autoCompleteDetector, int maxHistory)
-        {
-            _inputBuilder = new StringBuilder();
-            _history = new TextHistory(maxHistory);
-            _autoComplete = new AutoComplete(autoCompleteDetector);
-            _shouldRefresh = false;
-            _cachedInput = string.Empty;
-        }
 
         /// <summary>
-        ///     Updates the console window after detecting each key press, firing off available events as needed
+        ///     Updates the console window after detecting each key press, firing off
+        ///     available events as needed
         /// </summary>
         public virtual void Update()
         {
-            if(Console.KeyAvailable)
+            if (Console.KeyAvailable)
             {
                 ConsoleKeyInfo keyInfo = Console.ReadKey(true);
 
-                switch(keyInfo.Key)
+                switch (keyInfo.Key)
                 {
                     case ConsoleKey.Enter:
-                        if(_inputBuilder.Length > 0)
+                        if (_inputBuilder.Length > 0)
                         {
-                            InputCompleted?.Invoke(this, new InputCompleteEventArgs(keyInfo.Key, _inputBuilder.ToString()));
+                            InputCompleted?.Invoke(this,
+                                                   new InputCompleteEventArgs(
+                                                       keyInfo.Key,
+                                                       _inputBuilder
+                                                           .ToString()));
+
                             _history.AddHistory(_inputBuilder.ToString());
                             ClearInput();
                         }
 
                         break;
                     case ConsoleKey.Escape:
-                        if(string.IsNullOrEmpty(_cachedInput))
+                        if (string.IsNullOrEmpty(_cachedInput))
                         {
                             ClearInput();
                         }
@@ -110,7 +123,7 @@ namespace FluffyVoid.ConsoleUtilities
 
                         break;
                     case ConsoleKey.Backspace:
-                        if(_inputBuilder.Length > 0)
+                        if (_inputBuilder.Length > 0)
                         {
                             _inputBuilder.Remove(_inputBuilder.Length - 1, 1);
                         }
@@ -119,14 +132,15 @@ namespace FluffyVoid.ConsoleUtilities
 
                         break;
                     case ConsoleKey.Tab:
-                        if(string.IsNullOrEmpty(_cachedInput))
+                        if (string.IsNullOrEmpty(_cachedInput))
                         {
                             _cachedInput = _inputBuilder.ToString();
                         }
 
                         _inputBuilder.Clear();
                         _shouldRefresh = true;
-                        _inputBuilder.Append(_autoComplete.GetSuggestion(_cachedInput));
+                        _inputBuilder.Append(
+                            _autoComplete.GetSuggestion(_cachedInput));
 
                         break;
                     case ConsoleKey.UpArrow:
@@ -151,7 +165,8 @@ namespace FluffyVoid.ConsoleUtilities
                     case ConsoleKey.F10:
                     case ConsoleKey.F11:
                     case ConsoleKey.F12:
-                        FunctionKeyPressed?.Invoke(this, new InputEventArgs(keyInfo.Key));
+                        FunctionKeyPressed?.Invoke(
+                            this, new InputEventArgs(keyInfo.Key));
 
                         break;
                     case ConsoleKey.A:
@@ -219,7 +234,9 @@ namespace FluffyVoid.ConsoleUtilities
                     case ConsoleKey.Oem6:
                     case ConsoleKey.Oem7:
                     case ConsoleKey.Oem8:
-                        KeyPressed?.Invoke(this, new InputEventArgs(keyInfo.Key));
+                        KeyPressed?.Invoke(
+                            this, new InputEventArgs(keyInfo.Key));
+
                         _inputBuilder.Append(keyInfo.KeyChar);
                         QueueForRefresh();
 
@@ -227,7 +244,7 @@ namespace FluffyVoid.ConsoleUtilities
                 }
             }
 
-            if(Console.CursorLeft != _inputBuilder.Length || _shouldRefresh)
+            if (Console.CursorLeft != _inputBuilder.Length || _shouldRefresh)
             {
                 _shouldRefresh = false;
                 EraseLastLine();
@@ -244,12 +261,13 @@ namespace FluffyVoid.ConsoleUtilities
             QueueForRefresh();
         }
         /// <summary>
-        ///     Signals that the console window should refresh the input field after text has been entered
+        ///     Signals that the console window should refresh the input field after text
+        ///     has been entered
         /// </summary>
         private void QueueForRefresh()
         {
             _shouldRefresh = true;
-            _cachedInput = string.Empty;
+            _cachedInput   = string.Empty;
         }
     }
 }
